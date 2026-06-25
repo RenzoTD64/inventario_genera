@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inventario de Activos Tecnológicos · Genera</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f5f5f3;
+    --surface: #ffffff;
+    --surface2: #f0efe9;
+    --text: #1a1a18;
+    --text2: #6b6b66;
+    --border: rgba(0,0,0,0.1);
+    --green: #3B6D11;
+    --green-bg: #EAF3DE;
+    --amber: #854F0B;
+    --amber-bg: #FAEEDA;
+    --red: #791F1F;
+    --red-bg: #FCEBEB;
+    --gray: #5F5E5A;
+    --gray-bg: #F1EFE8;
+    --blue: #185FA5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a18;
+      --surface: #242422;
+      --surface2: #2e2e2b;
+      --text: #f0efe9;
+      --text2: #9a9a94;
+      --border: rgba(255,255,255,0.1);
+      --green: #C0DD97;
+      --green-bg: #173404;
+      --amber: #FAC775;
+      --amber-bg: #412402;
+      --red: #F7C1C1;
+      --red-bg: #501313;
+      --gray: #D3D1C7;
+      --gray-bg: #2C2C2A;
+      --blue: #B5D4F4;
+    }
+  }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.5; }
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 28px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-mark { width: 32px; height: 32px; background: #1a5ca8; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .logo-mark svg { width: 18px; height: 18px; fill: white; }
+  .logo-name { font-size: 15px; font-weight: 600; color: var(--text); }
+  .logo-sub { font-size: 11px; color: var(--text2); margin-top: 1px; }
+  .header-date { font-size: 12px; color: var(--text2); }
+  main { max-width: 1100px; margin: 0 auto; padding: 28px 24px; }
+  .page-title { font-size: 22px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .page-sub { font-size: 13px; color: var(--text2); margin-bottom: 24px; }
+  .section-label { font-size: 11px; font-weight: 600; color: var(--text2); letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 12px; }
+  .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 28px; }
+  .metric { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
+  .metric-label { font-size: 11px; color: var(--text2); margin-bottom: 8px; }
+  .metric-val { font-size: 28px; font-weight: 600; line-height: 1; color: var(--text); }
+  .metric-sub { font-size: 11px; color: var(--text2); margin-top: 5px; }
+  .charts-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
+  .chart-card.wide { grid-column: span 3; }
+  .chart-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 14px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text2); }
+  .legend-dot { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+  .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  select { font-size: 12px; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; outline: none; }
+  select:hover { border-color: rgba(0,0,0,0.25); }
+  .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 28px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+  th { text-align: left; font-size: 11px; font-weight: 600; color: var(--text2); padding: 10px 14px; background: var(--surface2); border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td { padding: 9px 14px; color: var(--text); border-bottom: 1px solid var(--border); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--surface2); }
+  .badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
+  .b-op { background: var(--green-bg); color: var(--green); }
+  .b-rep { background: var(--amber-bg); color: var(--amber); }
+  .b-baja { background: var(--red-bg); color: var(--red); }
+  .b-inop { background: var(--gray-bg); color: var(--gray); }
+  .table-footer { font-size: 11px; color: var(--text2); padding: 10px 14px; background: var(--surface2); border-top: 1px solid var(--border); }
+  footer { text-align: center; font-size: 11px; color: var(--text2); padding: 24px; border-top: 1px solid var(--border); }
+  @media (max-width: 768px) {
+    .charts-row { grid-template-columns: 1fr; }
+    .chart-card.wide { grid-column: span 1; }
+    header { padding: 12px 16px; }
+    main { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 20 20"><path d="M3 4h14v2H3V4zm0 5h14v2H3V9zm0 5h9v2H3v-2z"/></svg>
+    </div>
+    <div>
+      <div class="logo-name">Genera Factoring</div>
+      <div class="logo-sub">Transformación Digital · TIC</div>
+    </div>
+  </div>
+  <div class="header-date" id="hdate"></div>
+</header>
+
+<main>
+  <div class="page-title">Inventario de activos tecnológicos</div>
+  <div class="page-sub">Trazabilidad, asignaciones y estado de equipos · Sedes Los Olivos y San Isidro</div>
+
+  <div class="section-label">Resumen general</div>
+  <div class="metric-grid">
+    <div class="metric">
+      <div class="metric-label">Total activos</div>
+      <div class="metric-val" id="m-total">–</div>
+      <div class="metric-sub">registros únicos</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Operativos</div>
+      <div class="metric-val" style="color:var(--green)" id="m-op">–</div>
+      <div class="metric-sub" id="m-op-pct">del total</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">En reparación</div>
+      <div class="metric-val" style="color:var(--amber)" id="m-rep">–</div>
+      <div class="metric-sub">requieren atención</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Baja / Inoperativos</div>
+      <div class="metric-val" style="color:var(--red)" id="m-bi">–</div>
+      <div class="metric-sub">fuera de servicio</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Laptops / Surfaces</div>
+      <div class="metric-val" id="m-lap">–</div>
+      <div class="metric-sub">equipos principales</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Celulares</div>
+      <div class="metric-val" id="m-cel">–</div>
+      <div class="metric-sub">dispositivos móviles</div>
+    </div>
+  </div>
+
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-title">Por estado</div>
+      <div class="legend" id="leg-est"></div>
+      <div style="position:relative;height:180px"><canvas id="cEst" role="img" aria-label="Distribución por estado"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Por tipo de activo</div>
+      <div class="legend" id="leg-tipo"></div>
+      <div style="position:relative;height:180px"><canvas id="cTipo" role="img" aria-label="Distribución por tipo"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Por sede</div>
+      <div class="legend" id="leg-sede"></div>
+      <div style="position:relative;height:180px"><canvas id="cSede" role="img" aria-label="Distribución por sede"></canvas></div>
+    </div>
+    <div class="chart-card wide">
+      <div class="chart-title">Activos operativos por área</div>
+      <div style="position:relative;height:200px"><canvas id="cArea" role="img" aria-label="Activos por área"></canvas></div>
+    </div>
+  </div>
+
+  <div class="section-label">Detalle de activos</div>
+  <div class="filter-bar">
+    <select id="fEst" onchange="renderTable()">
+      <option value="">Todos los estados</option>
+      <option>Operativo</option><option>Reparación</option><option>Baja</option><option>Inoperativo</option>
+    </select>
+    <select id="fTipo" onchange="renderTable()"><option value="">Todos los tipos</option></select>
+    <select id="fArea" onchange="renderTable()"><option value="">Todas las áreas</option></select>
+    <select id="fSede" onchange="renderTable()"><option value="">Todas las sedes</option></select>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:22%">Activo</th>
+          <th style="width:14%">Código</th>
+          <th style="width:11%">Tipo</th>
+          <th style="width:9%">Estado</th>
+          <th style="width:14%">Área</th>
+          <th style="width:11%">Sede</th>
+          <th style="width:19%">Asignado a</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <div class="table-footer" id="tcount"></div>
+  </div>
+</main>
+
+<footer>Genera Factoring · Inventario TIC · Actualizado junio 2025</footer>
+
+<script>
+document.getElementById('hdate').textContent = new Date().toLocaleDateString('es-PE',{day:'2-digit',month:'long',year:'numeric'});
+
+const D = [
+  {n:"Lenovo IdeaPad 3-14ALC6",c:"LT-DL-5430-029",e:"Operativo",t:"Laptop",a:"Transformacion Digital",s:"Olivos / San Isidro",u:"Renzo Anicama"},
+  {n:"Mouse",c:"MOU-NN-XX-030",e:"Operativo",t:"Mouse",a:"Transformacion Digital",s:"Olivos / San Isidro",u:"Renzo Anicama"},
+  {n:"Audifono Sonny",c:"AUD-SONY-XX-031",e:"Operativo",t:"Audifonos",a:"Transformacion Digital",s:"Olivos / San Isidro",u:"Renzo Anicama"},
+  {n:"Microsoft Surface Pro 7+",c:"MS-SF-PRO7P-032",e:"Operativo",t:"Surface",a:"Comercial",s:"Olivos / San Isidro",u:"Jozelyn Segura"},
+  {n:"Celular Samsung Galaxy A15-5G",c:"CEL-SAM-GA15-035",e:"Operativo",t:"Celular",a:"Comercial",s:"Olivos / San Isidro",u:"Jozelyn Segura"},
+  {n:"Audifono Kingston Hyper",c:"AUD-HPX-KSH-034",e:"Operativo",t:"Audifonos",a:"Comercial",s:"Olivos / San Isidro",u:"Jozelyn Segura"},
+  {n:"Mouse Logitech M240",c:"MOU-LOG.M240-041",e:"Operativo",t:"Mouse",a:"Comercial",s:"Olivos / San Isidro",u:"Rosario Rodriguez"},
+  {n:"Mouse Logitech M170",c:"MOU-LOG-M170-038",e:"Operativo",t:"Mouse",a:"Comercial",s:"Olivos / San Isidro",u:"Maria Bonifaz"},
+  {n:"Celular Samsung Galaxy A15-5G",c:"CEL-SAM-GA15-040",e:"Operativo",t:"Celular",a:"Comercial",s:"Olivos / San Isidro",u:"Maria Bonifaz"},
+  {n:"HUB Adapter Baseus",c:"HUB-ADP-BAS-036",e:"Operativo",t:"Hub Adaptador",a:"Comercial",s:"Olivos / San Isidro",u:"Jozelyn Segura"},
+  {n:"Mouse Lenovo L300",c:"MOU-LEV-L300-033",e:"Operativo",t:"Mouse",a:"Comercial",s:"Olivos / San Isidro",u:"Jozelyn Segura"},
+  {n:"Asus VivoBook 15",c:"ASUS-VBK-15-042",e:"Operativo",t:"Laptop",a:"Comercial",s:"Olivos / San Isidro",u:"Francesca Espinoza"},
+  {n:"Lenovo IdeaPad3 14alc6",c:"LNV-IDEA-PAD3-037",e:"Operativo",t:"Laptop",a:"Comercial",s:"Olivos / San Isidro",u:"Maria Bonifaz"},
+  {n:"Teclado externo Terraware",c:"TECL-EXT-TERR-039",e:"Operativo",t:"Teclado",a:"Comercial",s:"Olivos / San Isidro",u:"Maria Bonifaz"},
+  {n:"Lenovo YOGA 7 14ARP8",c:"LNV-YOG7-14AR-040",e:"Operativo",t:"Laptop",a:"Comercial",s:"Olivos / San Isidro",u:"Rosario Rodriguez"},
+  {n:"Audifonos Sonny",c:"AUD-SONNY-043",e:"Operativo",t:"Audifonos",a:"Comercial",s:"Olivos / San Isidro",u:"Francesca Espinoza"},
+  {n:"Mouse Lenovo L300",c:"MOU-LEV-L300-044",e:"Operativo",t:"Mouse",a:"Comercial",s:"Olivos / San Isidro",u:"Francesca Espinoza"},
+  {n:"Celular Samsung Galaxy A15-5G",c:"CEL-SAM-GA15-045",e:"Operativo",t:"Celular",a:"Comercial",s:"Olivos / San Isidro",u:"Francesca Espinoza"},
+  {n:"Lenovo IdeaPad Slim 3 15IRH10",c:"LNV-IDS3-15IR-046",e:"Operativo",t:"Laptop",a:"Transformacion Digital",s:"Remoto",u:"Herbert Vente"},
+  {n:"Lenovo Ideapad Gaming 3 15ACH6",c:"LNV-IPG3-15AC-046",e:"Operativo",t:"Laptop",a:"Marketing",s:"Olivos / San Isidro",u:"Luis Salcedo"},
+  {n:"Mouse Lenovo M240",c:"MOU-LEV-M240-047",e:"Operativo",t:"Mouse",a:"Marketing",s:"Olivos / San Isidro",u:"Luis Salcedo"},
+  {n:"Audifono Creative HS-230",c:"AUD-CRHS-230-048",e:"Operativo",t:"Audifonos",a:"Marketing",s:"Olivos / San Isidro",u:"Luis Salcedo"},
+  {n:"Microfono Kreed K11",c:"MIC-KRE-K11-049",e:"Operativo",t:"Microfono",a:"Marketing",s:"Olivos / San Isidro",u:"Luis Salcedo"},
+  {n:"Lenovo V15 G2 ITL",c:"LNV-V15-G2-050",e:"Operativo",t:"Laptop",a:"Operaciones",s:"Olivos / San Isidro",u:"Alessandra Florentini"},
+  {n:"Audifono Creative HS-230",c:"AUD-CRE-HS23-051",e:"Operativo",t:"Audifonos",a:"Operaciones",s:"Olivos / San Isidro",u:"Alessandra Florentini"},
+  {n:"Mouse Logitech M170",c:"MOU-LOG-M170-052",e:"Operativo",t:"Mouse",a:"Operaciones",s:"Olivos / San Isidro",u:"Alessandra Florentini"},
+  {n:"Celular Samsung Galaxy A16",c:"CEL-SAM-GA16-054",e:"Operativo",t:"Celular",a:"Operaciones",s:"Olivos / San Isidro",u:"Alessandra Florentini"},
+  {n:"Lenovo IdeaPad 3 14ALC6",c:"LNV-IP3-14AL-055",e:"Operativo",t:"Laptop",a:"Riesgos",s:"Olivos / San Isidro",u:"Ricardo Llave"},
+  {n:"Mouse Lenovo L300",c:"MOU-LEV-L300-056",e:"Operativo",t:"Mouse",a:"Riesgos",s:"Olivos / San Isidro",u:"Ricardo Llave"},
+  {n:"Audifono Creative HS-230",c:"AUD-CRE-HS230-057",e:"Operativo",t:"Audifonos",a:"Riesgos",s:"Olivos / San Isidro",u:"Ricardo Llave"},
+  {n:"Lenovo V15 G2 ALC",c:"LNV-V15-G2-058",e:"Operativo",t:"Laptop",a:"Operaciones",s:"Olivos / San Isidro",u:"Diego Carnero"},
+  {n:"Camara Web Logitech",c:"CAM-WEB-LOG-060",e:"Operativo",t:"Camara Web",a:"Operaciones",s:"Olivos / San Isidro",u:"Diego Carnero"},
+  {n:"HUB GREEN",c:"ADAP-HUB-GREE-061",e:"Operativo",t:"Hub Adaptador",a:"Operaciones",s:"Olivos / San Isidro",u:"Diego Carnero"},
+  {n:"Celular Samsung Galaxy A3 Core",c:"CEL-SAM-GA3C-062",e:"Operativo",t:"Celular",a:"Operaciones",s:"Olivos / San Isidro",u:"Diego Carnero"},
+  {n:"Lenovo V15 G2 ITL",c:"LNV-V15-G2-063",e:"Operativo",t:"Laptop",a:"Cobranza",s:"Olivos / San Isidro",u:"Karina Vilcapoma"},
+  {n:"Mouse Logitech M170",c:"MOU-LOG-M170-064",e:"Operativo",t:"Mouse",a:"Cobranza",s:"Olivos / San Isidro",u:"Karina Vilcapoma"},
+  {n:"Lenovo IdeaPad SLIM 3 15IAH8",c:"LNV-IPS3-15IA-065",e:"Operativo",t:"Laptop",a:"Cobranza",s:"Olivos / San Isidro",u:"Danitza Zarsoza"},
+  {n:"Mouse Lenovo L300",c:"MOU-LEV-L300-066",e:"Operativo",t:"Mouse",a:"Cobranza",s:"Olivos / San Isidro",u:"Danitza Zarsoza"},
+  {n:"Audifono Kingston HYPERX",c:"AUD-KING-HYPX-067",e:"Operativo",t:"Audifonos",a:"Cobranza",s:"Olivos / San Isidro",u:"Danitza Zarsoza"},
+  {n:"Celular Samsung A03 Core",c:"CEL-SAM-GA03-081",e:"Operativo",t:"Celular",a:"Cobranza",s:"Olivos / San Isidro",u:"Danitza Zarsoza"},
+  {n:"Lenovo V15 G4 AMN",c:"LNV-V15-G4-068",e:"Operativo",t:"Laptop",a:"Administracion",s:"Olivos / San Isidro",u:"Miriam Guillem"},
+  {n:"Mouse Logitech M196",c:"MOU-LOG-M196-069",e:"Operativo",t:"Mouse",a:"Administracion",s:"Olivos / San Isidro",u:"Miriam Guillem"},
+  {n:"Audifono SONY",c:"AUD-SONY-XX-070",e:"Operativo",t:"Audifonos",a:"Administracion",s:"Olivos / San Isidro",u:"Miriam Guillem"},
+  {n:"Celular Samsung Galaxy A03 Core",c:"CEL-SAM-GA03-071",e:"Operativo",t:"Celular",a:"Administracion",s:"Olivos / San Isidro",u:"Miriam Guillem"},
+  {n:"Microsoft Surface Studio",c:"MS-SF-ESTD-072",e:"Operativo",t:"Surface",a:"Operaciones",s:"Olivos / San Isidro",u:"Neill Castillo"},
+  {n:"Lenovo ThinkBook 16 G8 IRL",c:"LNV-TB-16G8-073",e:"Operativo",t:"Laptop",a:"Sala de Reuniones",s:"Olivos / San Isidro",u:"Juan Miranda"},
+  {n:"Mouse Microsoft Mobile 1850",c:"MOU-MN-1850-074",e:"Operativo",t:"Mouse",a:"Sala de Reuniones",s:"Olivos / San Isidro",u:"Juan Miranda"},
+  {n:"Audifono Kingston HYPERX",c:"AUD-KING-HYPX-075",e:"Operativo",t:"Audifonos",a:"Sala de Reuniones",s:"Olivos / San Isidro",u:"Juan Miranda"},
+  {n:"Microsoft Surface Pro 7",c:"MS-SF-PRO7-001",e:"Operativo",t:"Surface",a:"Almacen",s:"Los Olivos",u:"TIC"},
+  {n:"HP Pavilion 15-eh0xxx",c:"HP-PAV-15EH-004",e:"Operativo",t:"Laptop",a:"Almacen",s:"Los Olivos",u:"TIC"},
+  {n:"ThinkPad L13 YOGA",c:"TKP-L13-YOG-005",e:"Operativo",t:"Laptop Tactil",a:"Almacen",s:"Los Olivos",u:"TIC"},
+  {n:"Mouse Logitech M170 (1)",c:"MOU-LOG-M170-008",e:"Operativo",t:"Mouse",a:"Almacen",s:"Los Olivos",u:"TIC"},
+  {n:"Mouse Logitech M170 (2)",c:"MOU-LOG-M170-009",e:"Operativo",t:"Mouse",a:"Almacen",s:"Los Olivos",u:"TIC"},
+  {n:"Mouse Logitech M240",c:"MOU-LOG-M240-010",e:"Operativo",t:"Mouse",a:"Almacen",s:"Los Olivos",u:"TIC"},
+  {n:"Mouse Microsoft Mobile 1850",c:"MOU-MS-M185-011",e:"Operativo",t:"Mouse",a:"Almacen",s:"Los Olivos",u:"TIC"},
+  {n:"Audifono HYPERX CLOUD STINGER (1)",c:"AUD-HPX-CS-014",e:"Operativo",t:"Audifonos",a:"Almacen",s:"Los Olivos",u:"TIC"},
+  {n:"Audifono HYPERX CLOUD STINGER (2)",c:"AUD-HPX-CS-015",e:"Operativo",t:"Audifonos",a:"Almacen",s:"Los Olivos",u:"TIC"},
+  {n:"Audifono Sony",c:"AUD-SONNY-016",e:"Operativo",t:"Audifonos",a:"Almacen",s:"Los Olivos",u:"TIC"},
+  {n:"Audifono Creative HS-230",c:"AUD-CRE-HS23-017",e:"Operativo",t:"Audifonos",a:"Almacen",s:"Los Olivos",u:"TIC"},
+  {n:"Hub Adapter Baseus",c:"HUB-ADP-BAS-018",e:"Operativo",t:"Hub Adaptador",a:"Almacen",s:"Los Olivos",u:"TIC"},
+  {n:"Camara Web + Mic Teros",c:"CAM-WEB-TER-019",e:"Operativo",t:"Camara Web",a:"Almacen",s:"Los Olivos",u:"TIC"},
+  {n:"Camara Web + Mic",c:"CAM-WEB-SS-020",e:"Operativo",t:"Camara Web",a:"Almacen",s:"Los Olivos",u:"TIC"},
+  {n:"Caja Cable Red NEXXT CAT6",c:"CRED-CAT6-NEX-023",e:"Operativo",t:"Cable Red",a:"Almacen",s:"Los Olivos",u:"TIC"},
+  {n:"Celular Samsung Galaxy A3 CORE",c:"CEL-SAM-GA3-025",e:"Operativo",t:"Celular",a:"Almacen",s:"Los Olivos",u:"TIC"},
+  {n:"Router Tp-Link Archer C64",c:"RP-TPL-AC64-026",e:"Operativo",t:"Router",a:"Almacen",s:"Los Olivos",u:"TIC"},
+  {n:"Adaptador USB-HDMI",c:"ADAP-USHD-VID-027",e:"Operativo",t:"Adaptador",a:"Almacen",s:"Los Olivos",u:"TIC"},
+  {n:"Router Tp-Link Archer C50",c:"RP-TPL-AC50-028",e:"Operativo",t:"Router",a:"Almacen",s:"Los Olivos",u:"TIC"},
+  {n:"Cable HDMI a Micro USB",c:"CAB-MU-HDMI-032",e:"Operativo",t:"Cable",a:"Almacen",s:"Los Olivos",u:"TIC"},
+  {n:"Cable USB tipo C",c:"CAB-TIPC-BLA-033",e:"Operativo",t:"Cable",a:"Almacen",s:"Los Olivos",u:"TIC"},
+  {n:"Cable impresora USB-B",c:"CAB-IMP-TPB-034",e:"Operativo",t:"Cable",a:"Almacen",s:"Los Olivos",u:"TIC"},
+  {n:"Cable USB-A a USB-A",c:"CAB-USB-BTB-035",e:"Operativo",t:"Cable",a:"Almacen",s:"Los Olivos",u:"TIC"},
+  {n:"Cable USB-A a USB mini",c:"CAB-USBA-USBM-036",e:"Operativo",t:"Cable",a:"Almacen",s:"Los Olivos",u:"TIC"},
+  {n:"Huellero ZKTECO MB10 (Olivos)",c:"HUE-ZKT-MB10-076",e:"Operativo",t:"Huellero",a:"Kitchen",s:"Los Olivos",u:"TIC"},
+  {n:"Huellero ZKTECO MB10 (San Isidro)",c:"HUE-ZKT-MB10-076b",e:"Operativo",t:"Huellero",a:"Area de Trabajo",s:"San Isidro",u:"TIC"},
+  {n:"Impresora HP L8169",c:"IMP-HP-L816-078",e:"Operativo",t:"Impresora",a:"Sala de Reuniones",s:"Los Olivos",u:"TIC"},
+  {n:"Router TPLINK Archer AX72 (1)",c:"RP-TPL-AX72-079",e:"Operativo",t:"Router",a:"Kitchen",s:"Los Olivos",u:"TIC"},
+  {n:"Router TPLINK Archer AX72 (2)",c:"RP-TPL-AX72-079b",e:"Operativo",t:"Router",a:"Kitchen",s:"Los Olivos",u:"TIC"},
+  {n:"Switch 24-Port Axis2400R",c:"SW-24PT-AX24-080",e:"Operativo",t:"Switch",a:"Kitchen",s:"Los Olivos",u:"TIC"},
+  {n:"HP Spectre x360",c:"HP-SPE-X36-006",e:"Reparación",t:"Laptop Tactil",a:"Almacen",s:"Los Olivos",u:"TIC"},
+  {n:"Lenovo YOGA 7 15ITL5",c:"LNV-YOG7-ITL5-007",e:"Reparación",t:"Laptop",a:"Almacen",s:"Los Olivos",u:"TIC"},
+  {n:"Mouse Microsoft ARC TOUCH",c:"MOU-MS-ARC-012",e:"Baja",t:"Mouse",a:"Almacen",s:"Los Olivos",u:"TIC"},
+  {n:"Impresora HP Deskjet 2375",c:"IMP-HP-A237-081",e:"Baja",t:"Impresora",a:"Almacen",s:"Los Olivos",u:"TIC"},
+  {n:"Microserver HP PROLIANT (1)",c:"SERV-HP-MICR-024",e:"Baja",t:"Micro Servidor",a:"Almacen",s:"Los Olivos",u:"TIC"},
+  {n:"Microserver HP PROLIANT (2)",c:"SERV-HP-MICR-024b",e:"Baja",t:"Micro Servidor",a:"Almacen",s:"Los Olivos",u:"TIC"},
+  {n:"Camara Logitech PTZ PRO2",c:"CVC-LOG-PRO2-013",e:"Inoperativo",t:"Video Camara",a:"Almacen",s:"Los Olivos",u:"TIC"},
+  {n:"Camara Vigilancia iSmart",c:"CAMV-ISM-LIGH-081",e:"Inoperativo",t:"Camara Vigilancia",a:"Almacen",s:"Los Olivos",u:"TIC"},
+  {n:"Microsoft Surface Pro 7+",c:"MS-SF-PRO7P-002",e:"Inoperativo",t:"Surface",a:"Almacen",s:"Los Olivos",u:"TIC"},
+  {n:"Microsoft Surface Pro 7",c:"MS-SF-PRO7-003",e:"Inoperativo",t:"Laptop Tactil",a:"Almacen",s:"Los Olivos",u:"TIC"},
+];
+
+const total = D.length;
+const cnt = (k,v) => D.filter(d=>d[k]===v).length;
+document.getElementById('m-total').textContent = total;
+const op = cnt('e','Operativo');
+document.getElementById('m-op').textContent = op;
+document.getElementById('m-op-pct').textContent = Math.round(op/total*100)+'% del total';
+document.getElementById('m-rep').textContent = cnt('e','Reparación');
+document.getElementById('m-bi').textContent = cnt('e','Baja') + ' / ' + cnt('e','Inoperativo');
+document.getElementById('m-lap').textContent = D.filter(d=>['Laptop','Surface','Laptop Tactil'].includes(d.t)).length;
+document.getElementById('m-cel').textContent = cnt('t','Celular');
+
+function mkLegend(id, labels, cols) {
+  document.getElementById(id).innerHTML = labels.map((l,i)=>
+    `<span class="legend-item"><span class="legend-dot" style="background:${cols[i]}"></span>${l}</span>`
+  ).join('');
+}
+
+const estCols = ['#3B6D11','#854F0B','#791F1F','#5F5E5A'];
+new Chart(document.getElementById('cEst'),{type:'doughnut',data:{labels:['Operativo','Reparación','Baja','Inoperativo'],datasets:[{data:[op,cnt('e','Reparación'),cnt('e','Baja'),cnt('e','Inoperativo')],backgroundColor:estCols,borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+mkLegend('leg-est',['Operativo','Reparación','Baja','Inoperativo'],estCols);
+
+const tipoMap={};
+D.forEach(d=>{tipoMap[d.t]=(tipoMap[d.t]||0)+1});
+const tLabels=Object.keys(tipoMap).sort((a,b)=>tipoMap[b]-tipoMap[a]);
+const tCols=['#378ADD','#1D9E75','#D85A30','#7F77DD','#D4537E','#BA7517','#639922','#E24B4A','#888780','#5DCAA5','#AFA9EC','#F09595','#FAC775','#97C459'];
+new Chart(document.getElementById('cTipo'),{type:'doughnut',data:{labels:tLabels,datasets:[{data:tLabels.map(t=>tipoMap[t]),backgroundColor:tCols,borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+mkLegend('leg-tipo',tLabels,tCols.slice(0,tLabels.length));
+
+const sedeMap={};
+D.forEach(d=>{sedeMap[d.s]=(sedeMap[d.s]||0)+1});
+const sLabels=Object.keys(sedeMap);
+const sCols=['#185FA5','#0F6E56','#993C1D'];
+new Chart(document.getElementById('cSede'),{type:'doughnut',data:{labels:sLabels,datasets:[{data:sLabels.map(s=>sedeMap[s]),backgroundColor:sCols,borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+mkLegend('leg-sede',sLabels,sCols);
+
+const areaMap={};
+D.filter(d=>d.e==='Operativo').forEach(d=>{areaMap[d.a]=(areaMap[d.a]||0)+1});
+const aLabels=Object.keys(areaMap).sort((a,b)=>areaMap[b]-areaMap[a]);
+new Chart(document.getElementById('cArea'),{type:'bar',data:{labels:aLabels,datasets:[{label:'Activos operativos',data:aLabels.map(a=>areaMap[a]),backgroundColor:'#185FA5',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:11},maxRotation:35,autoSkip:false},grid:{display:false}},y:{ticks:{font:{size:11},stepSize:1},grid:{color:'rgba(0,0,0,0.06)'}}}}});
+
+const tipos=[...new Set(D.map(d=>d.t))].sort();
+const areas=[...new Set(D.map(d=>d.a))].sort();
+const sedes=[...new Set(D.map(d=>d.s))].sort();
+const fT=document.getElementById('fTipo'), fA=document.getElementById('fArea'), fS=document.getElementById('fSede');
+tipos.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;fT.appendChild(o);});
+areas.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;fA.appendChild(o);});
+sedes.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;fS.appendChild(o);});
+
+const bMap={Operativo:'b-op',Reparación:'b-rep',Baja:'b-baja',Inoperativo:'b-inop'};
+function renderTable(){
+  const fe=document.getElementById('fEst').value, ft=fT.value, fa=fA.value, fs=fS.value;
+  const f=D.filter(d=>(!fe||d.e===fe)&&(!ft||d.t===ft)&&(!fa||d.a===fa)&&(!fs||d.s===fs));
+  document.getElementById('tbody').innerHTML=f.map(d=>
+    `<tr><td title="${d.n}">${d.n}</td><td style="font-size:11px;color:var(--text2)">${d.c}</td><td>${d.t}</td><td><span class="badge ${bMap[d.e]||'b-inop'}">${d.e}</span></td><td title="${d.a}">${d.a}</td><td style="font-size:11px">${d.s}</td><td>${d.u}</td></tr>`
+  ).join('');
+  document.getElementById('tcount').textContent=`Mostrando ${f.length} de ${total} activos`;
+}
+renderTable();
+</script>
+</body>
+</html>
