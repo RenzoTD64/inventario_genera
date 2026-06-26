@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard TIC - Inventario de Activos Tecnológicos</title>
+  <style>
+    :root {
+      --azul:#0B2D4D;
+      --azul2:#163E66;
+      --naranja:#F26522;
+      --verde:#08A852;
+      --gris:#F3F6FA;
+      --texto:#172033;
+      --muted:#667085;
+      --linea:#D7DEE8;
+      --rojo:#D92D20;
+      --ambar:#F79009;
+      --morado:#7A2CB0;
+      --card:#FFFFFF;
+    }
+    *{box-sizing:border-box}
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #eef2f7;
+      color: var(--texto);
+    }
+    .topbar {
+      background: linear-gradient(135deg, var(--azul), var(--azul2));
+      color: white;
+      padding: 22px 28px;
+      border-bottom: 5px solid var(--naranja);
+    }
+    .brand {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      max-width: 1400px;
+      margin:auto;
+    }
+    .brand h1 {
+      margin:0;
+      font-size: 26px;
+      letter-spacing: .3px;
+    }
+    .brand p {
+      margin:6px 0 0;
+      opacity:.9;
+      font-size:14px;
+    }
+    .badge {
+      background:rgba(255,255,255,.14);
+      border:1px solid rgba(255,255,255,.25);
+      padding:10px 14px;
+      border-radius:12px;
+      font-size:13px;
+      white-space:nowrap;
+    }
+    .container {
+      max-width:1400px;
+      margin: 22px auto;
+      padding: 0 20px 30px;
+    }
+    .grid-kpi {
+      display:grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap:14px;
+      margin-bottom:18px;
+    }
+    .kpi {
+      background:var(--card);
+      border:1px solid var(--linea);
+      border-radius:16px;
+      padding:16px;
+      box-shadow:0 8px 20px rgba(15,40,70,.06);
+    }
+    .kpi .label {
+      color:var(--muted);
+      font-size:12px;
+      text-transform:uppercase;
+      font-weight:700;
+      letter-spacing:.4px;
+    }
+    .kpi .num {
+      font-size:30px;
+      font-weight:800;
+      margin-top:8px;
+      color:var(--azul);
+    }
+    .kpi .sub {
+      color:var(--muted);
+      font-size:12px;
+      margin-top:6px;
+    }
+    .layout {
+      display:grid;
+      grid-template-columns: 360px 1fr;
+      gap:18px;
+      align-items:start;
+    }
+    .panel {
+      background:var(--card);
+      border:1px solid var(--linea);
+      border-radius:18px;
+      box-shadow:0 8px 20px rgba(15,40,70,.06);
+      overflow:hidden;
+    }
+    .panel-header {
+      padding:15px 16px;
+      border-bottom:1px solid var(--linea);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .panel-header h2 {
+      margin:0;
+      font-size:17px;
+      color:var(--azul);
+    }
+    .panel-body {
+      padding:14px 16px;
+    }
+    .search {
+      width:100%;
+      border:1px solid var(--linea);
+      border-radius:12px;
+      padding:11px 12px;
+      outline:none;
+      font-size:14px;
+      margin-bottom:12px;
+    }
+    .employee-list {
+      max-height: 720px;
+      overflow:auto;
+      padding-right:4px;
+    }
+    .emp {
+      width:100%;
+      border:1px solid var(--linea);
+      background:#fff;
+      border-radius:13px;
+      padding:12px;
+      margin-bottom:10px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      cursor:pointer;
+      transition:.15s ease;
+      text-align:left;
+    }
+    .emp:hover, .emp.active {
+      border-color:var(--naranja);
+      box-shadow:0 6px 14px rgba(242,101,34,.15);
+      transform: translateY(-1px);
+    }
+    .emp-name {
+      font-weight:700;
+      font-size:14px;
+    }
+    .emp-meta {
+      color:var(--muted);
+      font-size:12px;
+      margin-top:3px;
+    }
+    .pill {
+      background:#EAF1F8;
+      color:var(--azul);
+      padding:6px 9px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:800;
+    }
+    .toolbar {
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+    .select, .btn {
+      border:1px solid var(--linea);
+      background:white;
+      border-radius:10px;
+      padding:10px 11px;
+      font-size:13px;
+    }
+    .btn {
+      cursor:pointer;
+      color:var(--azul);
+      font-weight:700;
+    }
+    .btn.primary {
+      background:var(--azul);
+      color:white;
+      border-color:var(--azul);
+    }
+    .detail-title {
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .detail-title h2 {
+      font-size:20px;
+    }
+    .mini-kpis {
+      display:grid;
+      grid-template-columns: repeat(4,1fr);
+      gap:10px;
+      margin-bottom:14px;
+    }
+    .mini {
+      background:#F8FAFC;
+      border:1px solid var(--linea);
+      border-radius:13px;
+      padding:12px;
+    }
+    .mini b {
+      display:block;
+      font-size:22px;
+      color:var(--azul);
+    }
+    .mini span {
+      color:var(--muted);
+      font-size:12px;
+    }
+    table {
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
+    }
+    th {
+      background:var(--azul);
+      color:white;
+      text-align:left;
+      padding:10px 9px;
+      position:sticky;
+      top:0;
+      z-index:1;
+    }
+    td {
+      border-bottom:1px solid #E7ECF3;
+      padding:9px;
+      vertical-align:top;
+    }
+    tr:hover td {
+      background:#FBFCFE;
+    }
+    .status {
+      display:inline-block;
+      padding:5px 8px;
+      border-radius:999px;
+      font-weight:700;
+      font-size:12px;
+    }
+    .Operativo {background:#E9F8EF;color:#067A3E}
+    .Reparación {background:#FFF4E5;color:#B54708}
+    .Inoperativo {background:#FEECEC;color:#B42318}
+    .Baja {background:#F1F2F4;color:#475467}
+    .charts {
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:18px;
+      margin-top:18px;
+    }
+    .bar-row {
+      margin-bottom:11px;
+    }
+    .bar-top {
+      display:flex;
+      justify-content:space-between;
+      font-size:13px;
+      margin-bottom:5px;
+      gap:10px;
+    }
+    .bar {
+      height:10px;
+      background:#EDF2F7;
+      border-radius:999px;
+      overflow:hidden;
+    }
+    .bar > div {
+      height:100%;
+      background:linear-gradient(90deg, var(--naranja), #ff9d4d);
+      border-radius:999px;
+    }
+    .note {
+      background:#FFF8ED;
+      border:1px solid #FFD7A8;
+      color:#7A4A00;
+      border-radius:14px;
+      padding:12px 14px;
+      margin-top:14px;
+      font-size:13px;
+      line-height:1.4;
+    }
+    .recommendations {
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:14px;
+      margin-top:18px;
+    }
+    .rec {
+      background:#fff;
+      border:1px solid var(--linea);
+      border-radius:14px;
+      padding:14px;
+    }
+    .rec h3 {
+      margin:0 0 8px;
+      font-size:15px;
+      color:var(--azul);
+    }
+    .rec ul {
+      margin:0;
+      padding-left:17px;
+      font-size:13px;
+      color:#344054;
+      line-height:1.45;
+    }
+    .muted {color:var(--muted)}
+    .small {font-size:12px}
+    .asset-card-mobile{display:none}
+    @media (max-width: 1100px) {
+      .grid-kpi{grid-template-columns: repeat(3,1fr)}
+      .layout{grid-template-columns:1fr}
+      .charts{grid-template-columns:1fr}
+      .recommendations{grid-template-columns:1fr}
+    }
+    @media (max-width: 700px) {
+      .grid-kpi{grid-template-columns: repeat(2,1fr)}
+      .mini-kpis{grid-template-columns: repeat(2,1fr)}
+      .brand{display:block}
+      .badge{display:inline-block;margin-top:12px}
+      table{font-size:12px}
+      th,td{padding:7px}
+    }
+    @media print {
+      body{background:white}
+      .search,.toolbar,.btn{display:none!important}
+      .topbar{padding:14px 18px}
+      .container{margin:12px auto}
+      .panel{box-shadow:none}
+      .employee-list{max-height:none}
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div>
+        <h1>Dashboard TIC · Inventario de Activos Tecnológicos</h1>
+        <p>Vista ejecutiva para Gerencia · Control de asignaciones, estado, repotenciación y bajas</p>
+      </div>
+      <div class="badge">Genera · Área TIC</div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="grid-kpi">
+      <div class="kpi"><div class="label">Empleados con activos</div><div class="num">16</div><div class="sub">No incluye custodia TIC</div></div>
+      <div class="kpi"><div class="label">Activos registrados</div><div class="num">91</div><div class="sub">Incluye equipos y accesorios</div></div>
+      <div class="kpi"><div class="label">Operativos</div><div class="num">79</div><div class="sub">Disponibles para uso</div></div>
+      <div class="kpi"><div class="label">Reparación</div><div class="num">3</div><div class="sub">Pendientes de revisión</div></div>
+      <div class="kpi"><div class="label">Inoperativos / Baja</div><div class="num">9</div><div class="sub">Evaluar renovación</div></div>
+      <div class="kpi"><div class="label">Laptops a mejorar</div><div class="num">17</div><div class="sub">RAM, disco o cambio</div></div>
+    </section>
+
+    <section class="layout">
+      <aside class="panel">
+        <div class="panel-header">
+          <h2>Empleados</h2>
+          <span class="pill" id="empCount">16</span>
+        </div>
+        <div class="panel-body">
+          <input class="search" id="employeeSearch" placeholder="Buscar empleado..." oninput="renderEmployees()" />
+          <div class="employee-list" id="employeeList"></div>
+        </div>
+      </aside>
+
+      <section class="panel">
+        <div class="panel-header detail-title">
+          <div>
+            <h2 id="detailName">Resumen general</h2>
+            <div class="muted small" id="detailSub">Selecciona un empleado para ver sus activos tecnológicos asignados.</div>
+          </div>
+          <button class="btn primary" onclick="window.print()">Imprimir / PDF</button>
+        </div>
+        <div class="panel-body">
+          <div class="toolbar">
+            <select class="select" id="filterType" onchange="renderDetail()"></select>
+            <select class="select" id="filterStatus" onchange="renderDetail()"></select>
+            <button class="btn" onclick="showAll()">Ver todos los activos</button>
+          </div>
+
+          <div class="mini-kpis">
+            <div class="mini"><b id="mTotal">0</b><span>Activos visibles</span></div>
+            <div class="mini"><b id="mLaptops">0</b><span>Laptops / Surface</span></div>
+            <div class="mini"><b id="mAccessories">0</b><span>Accesorios</span></div>
+            <div class="mini"><b id="mIssues">0</b><span>Revisión / baja</span></div>
+          </div>
+
+          <div style="overflow:auto; max-height:560px; border:1px solid #E7ECF3; border-radius:14px;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Activo</th>
+                  <th>Código</th>
+                  <th>Tipo</th>
+                  <th>Estado</th>
+                  <th>Asignado</th>
+                  <th>Especificaciones</th>
+                  <th>Serie / IMEI</th>
+                  <th>Recomendación TIC</th>
+                </tr>
+              </thead>
+              <tbody id="assetRows"></tbody>
+            </table>
+          </div>
+
+          <div class="note">
+            <b>Uso:</b> haz clic en un nombre de la lista para ver los activos asignados. 
+            El botón <b>Imprimir / PDF</b> permite guardar una vista ejecutiva para presentar o archivar.
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <section class="charts">
+      <div class="panel">
+        <div class="panel-header"><h2>Activos por estado</h2></div>
+        <div class="panel-body" id="statusChart"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><h2>Top tipos de activo</h2></div>
+        <div class="panel-body" id="typeChart"></div>
+      </div>
+    </section>
+
+    <section class="recommendations">
+      <div class="rec">
+        <h3>Equipos a repotenciar</h3>
+        <ul>
+          <li>9 laptop(s) con RAM menor a 16GB.</li>
+          <li>16 laptop(s) con almacenamiento menor a 512GB.</li>
+          <li>Estándar sugerido: i5 13va gen o superior, 16/24GB RAM y SSD 512GB/1TB.</li>
+        </ul>
+      </div>
+      <div class="rec">
+        <h3>Equipos a evaluar</h3>
+        <ul>
+          <li>5 laptop(s) en reparación, inoperativas o baja.</li>
+          <li>Comparar costo de reparación vs. compra de equipo moderno.</li>
+          <li>Priorizar usuarios de áreas críticas y trabajo híbrido.</li>
+        </ul>
+      </div>
+      <div class="rec">
+        <h3>Control operativo</h3>
+        <ul>
+          <li>41 activo(s) bajo custodia TIC o sin usuario final.</li>
+          <li>Mantener evidencia fotográfica y actas de entrega/recepción.</li>
+          <li>Implementar código QR por activo para trazabilidad.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const ASSETS = [{"activo": "Lenovo IdeaPad 3-14ALC6 Type 82KT", "codigo": "LT-DL-5430-029", "estado": "Operativo", "tipo": "Laptop", "area": "Transformacion Digital", "sede": "Olivos / San Isidro", "serie": "PF3TTXZ0", "asignado": "Renzo Anicama", "os": "Windows 11 Home Single", "procesador": "AMD Ryzen 7 5700U 1.8 GHz", "ram": "20 GB DDR4", "ram_gb": 20.0, "almacenamiento": "256 GB SSD", "storage_gb": 256.0, "mac_wifi": "00-45-E2-D3-32-FD", "mac_ethernet": "", "cargador": "Funcional", "vatios": "65 W", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [{"nombre": "Cargador", "modelo": "LENOVO ADLX65CCGU2A", "serie": "8SSA10M42762C2TJ31H00NP", "vatios": "65W", "estado": "Optimo", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3062279925/media_2026-06-23_5-15-44 p. m._0_C01BCC4B.jpg"}], "recomendacion": "Ampliar SSD a 512GB/1TB", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3062260846/media_2026-06-23_5-13-46 p. m._0_8C5A128F.jpg"}, {"activo": "Audifono Sonny", "codigo": "AUD-SONY-XX-031", "estado": "Operativo", "tipo": "Audifonos", "area": "Transformacion Digital", "sede": "Olivos / San Isidro", "serie": "108-0075", "asignado": "Renzo Anicama", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3062288287/media_2026-06-23_5-16-37 p. m._0_4B77F96D.jpg"}, {"activo": "Microsoft Surface Pro 7 +", "codigo": "MS-SF-PRO7P-032", "estado": "Operativo", "tipo": "Surface", "area": "Comercial", "sede": "Olivos / San Isidro", "serie": "39015313953", "asignado": "Jozelyn Segura", "os": "Windows 11 Pro", "procesador": "INTEL CORE I5-1135G7 2.4Ghz", "ram": "16GB DDR4", "ram_gb": 16.0, "almacenamiento": "256 GB SSD", "storage_gb": 256.0, "mac_wifi": "10-3D-1C-35-5D-4A", "mac_ethernet": "02-50-D3-00-F4-4B", "cargador": "Funcional", "vatios": "65 W", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [{"nombre": "Cargador de Laptop", "modelo": "Microsoft 1702", "serie": "0D130POK05735", "vatios": "65W", "estado": "Operativo", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3069182303/Multimedia (3).jpg"}], "recomendacion": "Ampliar SSD a 512GB/1TB", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3069180709/Multimedia (4).jpg"}, {"activo": "Celular Samsung Galaxy A15 -5G", "codigo": "CEL-SAM-GA15-035", "estado": "Operativo", "tipo": "Celular", "area": "Comercial", "sede": "Olivos / San Isidro", "serie": "R5CX405MLWW", "asignado": "Jozelyn Segura", "os": "Android 15", "procesador": "", "ram": "4GB", "ram_gb": 4.0, "almacenamiento": "113 GB", "storage_gb": 113.0, "mac_wifi": "A4-A4-90-F7-C1-D0", "mac_ethernet": "", "cargador": "Funcional", "vatios": "20 W", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [{"nombre": "Cargador de Celular", "modelo": "Samsung", "serie": "S/S", "vatios": "25W", "estado": "Operativo", "imagen": null}], "recomendacion": "", "imagen": ""}, {"activo": "Audifono Kingston Hyper", "codigo": "AUD-HPX-KSH-034", "estado": "Operativo", "tipo": "Audifonos", "area": "Comercial", "sede": "Olivos / San Isidro", "serie": "HX-HSCSC2-BK/WW", "asignado": "Jozelyn Segura", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3069181222/Multimedia (2).jpg"}, {"activo": "Mouse Logitech M240", "codigo": "MOU-LOG.M240-041", "estado": "Operativo", "tipo": "Mouse", "area": "Comercial", "sede": "Olivos / San Isidro", "serie": "2338AP07C4W8", "asignado": "Rosario Rodriguez", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Mouse Logitech M170", "codigo": "MOU-LOG-M170-038", "estado": "Operativo", "tipo": "Mouse", "area": "Comercial", "sede": "Olivos / San Isidro", "serie": "2421AP06UFT8", "asignado": "Maria Bonifaz", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Celular Samsung Galaxy A15-5G", "codigo": "CEL-SAM-GA15-040", "estado": "Operativo", "tipo": "Celular", "area": "Comercial", "sede": "Olivos / San Isidro", "serie": "R5CX4284FFF", "asignado": "Maria Bonifaz", "os": "Android 14", "procesador": "", "ram": "4 GB", "ram_gb": 4.0, "almacenamiento": "113 GB", "storage_gb": 113.0, "mac_wifi": "", "mac_ethernet": "", "cargador": "Funcional", "vatios": "25 W", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [{"nombre": "Cargador de Celular", "modelo": "Samsung", "serie": "RF7X12KOHP2HMB", "vatios": "25W", "estado": "Operativo", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3069158359/imagen (8).png"}], "recomendacion": "", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3069157063/imagen (7).png"}, {"activo": "Mouse  Lenovo  L300", "codigo": "MOU-LEV-L300-033", "estado": "Operativo", "tipo": "Mouse", "area": "Comercial", "sede": "Olivos / San Isidro", "serie": "1SGY50Z18985Z14NZANV49", "asignado": "Jozelyn Segura", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3069181556/Multimedia.jpg"}, {"activo": "HUB Adapter Baseus", "codigo": "HUB-ADP-BAS-036", "estado": "Operativo", "tipo": "Hub Adaptador", "area": "Comercial", "sede": "Olivos / San Isidro", "serie": "UCN3275", "asignado": "Jozelyn Segura", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Asus VivoBook 15", "codigo": "ASUS-VBK-15-042", "estado": "Operativo", "tipo": "Laptop", "area": "Comercial", "sede": "Olivos / San Isidro", "serie": "S1N0CV10977304D", "asignado": "Francesca Espinoza", "os": "Windows 11 Pro", "procesador": "CORE I5 - 120U 1.4GHz", "ram": "16 GB DDR4", "ram_gb": 16.0, "almacenamiento": "512 GB SSD", "storage_gb": 512.0, "mac_wifi": "", "mac_ethernet": "", "cargador": "Funcional", "vatios": "65 W", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [{"nombre": "Cargador de Laptop", "modelo": "Asus ADP-45BWY", "serie": "233810009D", "vatios": "65W", "estado": "Operativo", "imagen": null}], "recomendacion": "Equipo apto para uso", "imagen": ""}, {"activo": "Lenovo IdeaPad3 14alc6", "codigo": "LNV-IDEA-PAD3-037", "estado": "Operativo", "tipo": "Laptop", "area": "Comercial", "sede": "Olivos / San Isidro", "serie": "PF3T98SY", "asignado": "Maria Bonifaz", "os": "Windows 11 Home Single", "procesador": "AMD RYZEN 7 5700U 1.8 GHz", "ram": "12 GB DDR4", "ram_gb": 12.0, "almacenamiento": "256 GB SSD", "storage_gb": 256.0, "mac_wifi": "00-45-E2-D3-2B-A1", "mac_ethernet": "", "cargador": "Funcional", "vatios": "65 W", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [{"nombre": "Cargador de Laptop", "modelo": "LENOVO", "serie": "8S5A10K787361L1CZ88YUDGP", "vatios": "65W", "estado": "Operativo", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3069157552/imagen (6).png"}], "recomendacion": "Repotenciar RAM a 16/24GB; Ampliar SSD a 512GB/1TB", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3069157212/imagen (5).png"}, {"activo": "Teclado externo Terraware", "codigo": "TECL-EXT-TERR-039", "estado": "Operativo", "tipo": "Teclado", "area": "Comercial", "sede": "Olivos / San Isidro", "serie": "S/S", "asignado": "Maria Bonifaz", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "65 W", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Lenovo YOGA 7 14ARP8", "codigo": "LNV-YOG7-14AR-040", "estado": "Operativo", "tipo": "Laptop", "area": "Comercial", "sede": "Olivos / San Isidro", "serie": "YX08LP7V", "asignado": "Rosario Rodriguez", "os": "Windows 11 Home Single", "procesador": "AMD RYZEN 7 7735U 2.70GHz", "ram": "16 GB", "ram_gb": 16.0, "almacenamiento": "512 GB SSD", "storage_gb": 512.0, "mac_wifi": "14-AC-60-CF-5D-B3", "mac_ethernet": "", "cargador": "Funcional", "vatios": "65 W", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [{"nombre": "Cargador de Laptop", "modelo": "Lenovo TPN-DA16", "serie": "8SGX21J75547L1CZ39L042X", "vatios": "65W", "estado": "Operativo", "imagen": null}], "recomendacion": "Equipo apto para uso", "imagen": ""}, {"activo": "Audifonos Sonny", "codigo": "AUD-SONNY-043", "estado": "Operativo", "tipo": "Audifonos", "area": "Comercial", "sede": "Olivos / San Isidro", "serie": "S/S", "asignado": "Francesca Espinoza", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Mouse Lenovo L300", "codigo": "MOU-LEV-L300-044", "estado": "Operativo", "tipo": "Mouse", "area": "Comercial", "sede": "Olivos / San Isidro", "serie": "1SGY50Z18985Z14NZANX49", "asignado": "Francesca Espinoza", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Celular Samsung Galaxy A15-5G", "codigo": "CEL-SAM-GA15-045", "estado": "Operativo", "tipo": "Celular", "area": "Comercial", "sede": "Olivos / San Isidro", "serie": "R5CX42MM0GT", "asignado": "Francesca Espinoza", "os": "Android 15", "procesador": "", "ram": "4 GB", "ram_gb": 4.0, "almacenamiento": "113 GB", "storage_gb": 113.0, "mac_wifi": "08-A5-DF-77-DD-6D", "mac_ethernet": "", "cargador": "Funcional", "vatios": "25 W", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [{"nombre": "Cargador de Celular", "modelo": "Samsung EP-T1510", "serie": "R37X7LEF2A1DKB", "vatios": "65W", "estado": "Operativo", "imagen": null}], "recomendacion": "", "imagen": ""}, {"activo": "Lenovo IdeaPad Slim 3 15IRH10", "codigo": "LNV-IDS3-15IR-046", "estado": "Operativo", "tipo": "Laptop", "area": "Transformacion Digital", "sede": "Remoto", "serie": "PF5YWEKV", "asignado": "Herbert Vente", "os": "Windows 11 Pro", "procesador": "Intel Core i7-13620H", "ram": "16 GB DDR5", "ram_gb": 16.0, "almacenamiento": "1TB SSD", "storage_gb": 1.0, "mac_wifi": "14-B5-CD-38-70-FB", "mac_ethernet": "", "cargador": "Funcional", "vatios": "65 W", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [{"nombre": "Cargador de Laptop", "modelo": "LENOVO", "serie": "8SGX21J75539C1TJ", "vatios": "65W", "estado": "Operativo", "imagen": null}], "recomendacion": "Ampliar SSD a 512GB/1TB", "imagen": ""}, {"activo": "Lenovo Ideapad Gaming 3 15ACH6 82K2", "codigo": "LNV-IPG3-15AC-046", "estado": "Operativo", "tipo": "Laptop", "area": "Marketing", "sede": "Olivos / San Isidro", "serie": "MP2CJDR1", "asignado": "Luis Salcedo", "os": "Windows 11 Home Single", "procesador": "AMD RYZEN 7 5800H 2.43GHz", "ram": "16 GB DDR4", "ram_gb": 16.0, "almacenamiento": "512 GB SSD", "storage_gb": 512.0, "mac_wifi": "9C-2F-9D-A2-69-3D", "mac_ethernet": "E4-A8-DF-B3-B1-0B", "cargador": "Funcional", "vatios": "65 W", "obs": "EQUIPO SE PRESENTA EL TOUCHPAD DESACTIVADO, POR ELLO SE USA MOUSE EXTERNO, ADICIONAL SE VERIFICA CON RASGOS DE DESGASTE Y PARTES SIN TORNILLO, USUARIO INDICA QUE SE SALIO DE UN MOMENTO A OTRO, EQUIPO SE REINICIA SOLO, SE PASARIA A REVISION.", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [{"nombre": "Cargador de Laptop", "modelo": "LENOVO", "serie": "8SSA10R16886C2TJ28J0E8N", "vatios": "65W", "estado": "Operativo", "imagen": null}], "recomendacion": "Equipo apto para uso", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3070888121/dhrhrcr9wujhfvr5qewr6tyvuu50xr511445.avif"}, {"activo": "Mouse Lenovo M240", "codigo": "MOU-LEV-M240-047", "estado": "Operativo", "tipo": "Mouse", "area": "Marketing", "sede": "Olivos / San Isidro", "serie": "2338AP07C3F8", "asignado": "Luis Salcedo", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Audifono Creative HS-230", "codigo": "AUD-CRHS-230-048", "estado": "Operativo", "tipo": "Audifonos", "area": "Marketing", "sede": "Olivos / San Isidro", "serie": "Q2EF1110501001622B", "asignado": "Luis Salcedo", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Microfono Kreed K11", "codigo": "MIC-KRE-K11-049", "estado": "Operativo", "tipo": "Microfono", "area": "Marketing", "sede": "Olivos / San Isidro", "serie": "K11", "asignado": "Luis Salcedo", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Lenovo V15 G2 ITL", "codigo": "LNV-V15-G2-050", "estado": "Operativo", "tipo": "Laptop", "area": "Operaciones", "sede": "Olivos / San Isidro", "serie": "PF3FN1JY", "asignado": "Alessandra Florentini", "os": "Windows 11 Pro", "procesador": "INTEL CORE I5-1135G7 2.4GHz", "ram": "8GB DDR4", "ram_gb": 8.0, "almacenamiento": "256 GB SSD", "storage_gb": 256.0, "mac_wifi": "00-45-E2-A1-B1-6D", "mac_ethernet": "84-A9-38-89-CA-BC", "cargador": "Funcional", "vatios": "65 W", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [{"nombre": "Cargador Lenovo", "modelo": "ADLX65NLC3A", "serie": "8S5A10J40449L1CZ1AB0EMB", "vatios": "65W", "estado": "Operativo", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3069195906/WhatsApp Image 2026-06-24 at 6.42.52 PM.jpeg"}], "recomendacion": "Repotenciar RAM a 16/24GB; Ampliar SSD a 512GB/1TB", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3069193507/WhatsApp Image 2026-06-24 at 6.41.48 PM.jpeg"}, {"activo": "Audifono Creative HS-230", "codigo": "AUD-CRE-HS23-051", "estado": "Operativo", "tipo": "Audifonos", "area": "Operaciones", "sede": "Olivos / San Isidro", "serie": "Q2EF1110501001333F", "asignado": "Alessandra Florentini", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3069193953/WhatsApp Image 2026-06-24 at 6.43.30 PM.jpeg"}, {"activo": "Mouse Logitech M170", "codigo": "MOU-LOG-M170-052", "estado": "Operativo", "tipo": "Mouse", "area": "Operaciones", "sede": "Olivos / San Isidro", "serie": "2421AP06UFT8", "asignado": "Alessandra Florentini", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3069194211/WhatsApp Image 2026-06-24 at 6.42.09 PM.jpeg"}, {"activo": "Celular Samsung Galaxy A16", "codigo": "CEL-SAM-GA16-054", "estado": "Operativo", "tipo": "Celular", "area": "Operaciones", "sede": "Olivos / San Isidro", "serie": "R37N66C1JQ1RT3", "asignado": "Alessandra Florentini", "os": "Android 15", "procesador": "", "ram": "4 GB", "ram_gb": 4.0, "almacenamiento": "128 GB", "storage_gb": 128.0, "mac_wifi": "", "mac_ethernet": "", "cargador": "Funcional", "vatios": "65 W", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [{"nombre": "Cargador de Samsung", "modelo": "EP-TA20JWE", "serie": "R37N66C1JQ1RT3", "vatios": "25W", "estado": "Operativo", "imagen": null}], "recomendacion": "", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3069195335/Image (25).jpg"}, {"activo": "Lenovo IdeaPad 3 14ALC6", "codigo": "LNV-IP3-14AL-055", "estado": "Operativo", "tipo": "Laptop", "area": "Riesgos", "sede": "Olivos / San Isidro", "serie": "PF3TVXC0", "asignado": "Ricardo Llave", "os": "Windows 11 Home Single", "procesador": "AMD RYZEN 7 5700U 1.8GHz", "ram": "12GB DDR4", "ram_gb": 12.0, "almacenamiento": "240GB SSD", "storage_gb": 240.0, "mac_wifi": "00-45-E2-D3-1C-3D", "mac_ethernet": "", "cargador": "Funcional", "vatios": "65 W", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [{"nombre": "Cargador de Laptop", "modelo": "Lenovo", "serie": "8SSA10M42762C2TJ81H00DB", "vatios": "65W", "estado": "Operativo", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3068937578/Image (2).jpg"}], "recomendacion": "Repotenciar RAM a 16/24GB; Ampliar SSD a 512GB/1TB", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3068931694/Image.jpg"}, {"activo": "Mouse Lenovo L300", "codigo": "MOU-LEV-L300-056", "estado": "Operativo", "tipo": "Mouse", "area": "Riesgos", "sede": "Olivos / San Isidro", "serie": "1GY50Z18985Z14NZAP149", "asignado": "Ricardo Llave", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3068931871/Image (4).jpg"}, {"activo": "Audifono Creative HS-230", "codigo": "AUD-CRE-HS230-057", "estado": "Operativo", "tipo": "Audifonos", "area": "Riesgos", "sede": "Olivos / San Isidro", "serie": "Q2EF1110501001624W", "asignado": "Ricardo Llave", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3068932487/Image (3).jpg"}, {"activo": "Lenovo V15 G2 ALC", "codigo": "LNV-V15-G2-058", "estado": "Operativo", "tipo": "Laptop", "area": "Operaciones", "sede": "Olivos / San Isidro", "serie": "PF393RYA", "asignado": "Diego Carnero", "os": "Windows 11 Pro", "procesador": "AMD RYZEN 5 5500U 2.10Ghz", "ram": "16GB DDR4", "ram_gb": 16.0, "almacenamiento": "256 GB SSD", "storage_gb": 256.0, "mac_wifi": "00-45-E2-A9-A4-3B", "mac_ethernet": "84-A9-38-EC-FE-56", "cargador": "Funcional", "vatios": "65 W", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [{"nombre": "Cargador Lenovo", "modelo": "ADLX65NLC3A", "serie": "8S5A10J40449L1CZ1B401BB", "vatios": "25W", "estado": "Operativo", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3069080438/Image (19).jpg"}], "recomendacion": "Ampliar SSD a 512GB/1TB", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3069075039/Image (15).jpg"}, {"activo": "Camara Web Logitech", "codigo": "CAM-WEB-LOG-060", "estado": "Operativo", "tipo": "Camara Web", "area": "Operaciones", "sede": "Olivos / San Isidro", "serie": "V-U0018", "asignado": "Diego Carnero", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3069076539/Image (18).jpg"}, {"activo": "HUB GREEN", "codigo": "ADAP-HUB-GREE-061", "estado": "Operativo", "tipo": "Hub Adaptador", "area": "Operaciones", "sede": "Olivos / San Isidro", "serie": "S/S", "asignado": "Diego Carnero", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Celular Samsung Galaxy A3 Core", "codigo": "CEL-SAM-GA3C-062", "estado": "Operativo", "tipo": "Celular", "area": "Operaciones", "sede": "Olivos / San Isidro", "serie": "R7AT134CZ8P", "asignado": "Diego Carnero", "os": "Android 13", "procesador": "", "ram": "2 GB", "ram_gb": 2.0, "almacenamiento": "27GB", "storage_gb": 27.0, "mac_wifi": "", "mac_ethernet": "", "cargador": "Funcional", "vatios": "25 W", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [{"nombre": "Cargador de Celular", "modelo": "Samsung", "serie": "S/S", "vatios": "25W", "estado": "Operativo", "imagen": null}], "recomendacion": "", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3069093106/Image (20).jpg"}, {"activo": "Lenovo V15 G2 ITL", "codigo": "LNV-V15-G2-063", "estado": "Operativo", "tipo": "Laptop", "area": "Cobranza", "sede": "Olivos / San Isidro", "serie": "PF3F6TF", "asignado": "Karina Vilcapoma", "os": "Windows 11 Pro", "procesador": "CORE I5 - 1135G7 2.4GHz", "ram": "24 GB DDR4", "ram_gb": 24.0, "almacenamiento": "256 GB SSD", "storage_gb": 256.0, "mac_wifi": "00-45-E2-A1-B1-C5", "mac_ethernet": "84-A9-38-89-94-38", "cargador": "Funcional", "vatios": "65 W", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [{"nombre": "Cargador de Laptop", "modelo": "Lenovo", "serie": "8SGX21J75539C1TJ2A50KLD", "vatios": "65W", "estado": "Operativo", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3069008705/Image (8).jpg"}], "recomendacion": "Ampliar SSD a 512GB/1TB", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3069007068/Image (7).jpg"}, {"activo": "Mouse Logitech M170", "codigo": "MOU-LOG-M170-064", "estado": "Operativo", "tipo": "Mouse", "area": "Cobranza", "sede": "Olivos / San Isidro", "serie": "S/S", "asignado": "Karina Vilcapoma", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3069007395/Image (9).jpg"}, {"activo": "Lenovo IdeaPad SLIM 3 15IAH8", "codigo": "LNV-IPS3-15IA-065", "estado": "Operativo", "tipo": "Laptop", "area": "Cobranza", "sede": "Olivos / San Isidro", "serie": "PF51K36A", "asignado": "Danitza Zarsoza", "os": "Windows 11 Pro", "procesador": "CORE I5 - 12450H 2.0GHz", "ram": "16GB DDR4", "ram_gb": 16.0, "almacenamiento": "512 GB SSD", "storage_gb": 512.0, "mac_wifi": "A0-D3-65-A2-2B-41", "mac_ethernet": "", "cargador": "Funcional", "vatios": "65 W", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [{"nombre": "Cargador de Laptop", "modelo": "Lenovo", "serie": "8S5A10J40449L1CL1AB0ELW", "vatios": "65W", "estado": "Operativo", "imagen": null}], "recomendacion": "Equipo apto para uso", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3069051283/Image (10).jpg"}, {"activo": "Mouse Lenovo L300", "codigo": "MOU-LEV-L300-066", "estado": "Operativo", "tipo": "Mouse", "area": "Cobranza", "sede": "Olivos / San Isidro", "serie": "1GY50Z18985Z14NZANT49", "asignado": "Danitza Zarsoza", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3069051570/Image (11).jpg"}, {"activo": "Audifono Kingston - HYPERX", "codigo": "AUD-KING-HYPX-067", "estado": "Operativo", "tipo": "Audifonos", "area": "Cobranza", "sede": "Olivos / San Isidro", "serie": "3500316001A01LF", "asignado": "Danitza Zarsoza", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3069051904/Image (8).jpg"}, {"activo": "Lenovo V15 G4 AMN", "codigo": "LNV-V15-G4-068", "estado": "Operativo", "tipo": "Laptop", "area": "Administracion", "sede": "Olivos / San Isidro", "serie": "PF50TSLR", "asignado": "Miriam Guillem", "os": "Windows 11 Home Single", "procesador": "AMD RYZEN 5 7520U 2.80GHz", "ram": "8GB DDR4", "ram_gb": 8.0, "almacenamiento": "256 GB SSD", "storage_gb": 256.0, "mac_wifi": "C0-35-32-5D-F3-9F", "mac_ethernet": "C4-C6-E6-60-AC-ED", "cargador": "Funcional", "vatios": "65 W", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [{"nombre": "Cargador de Laptop", "modelo": "Lenovo", "serie": "8SGX21J75539C1TJ45Y02BR", "vatios": "65W", "estado": "Cambiar", "imagen": null}], "recomendacion": "Repotenciar RAM a 16/24GB; Ampliar SSD a 512GB/1TB", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3069121516/Image (23).jpg"}, {"activo": "Mouse Lenovo Logitech M196", "codigo": "MOU-LOG-M196-069", "estado": "Operativo", "tipo": "Mouse", "area": "Administracion", "sede": "Olivos / San Isidro", "serie": "2440LOE1YPB8", "asignado": "Miriam Guillem", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3069121961/Image (22).jpg"}, {"activo": "Audifono SONY", "codigo": "AUD-SONY-XX-070", "estado": "Operativo", "tipo": "Audifonos", "area": "Administracion", "sede": "Olivos / San Isidro", "serie": "10B-0075", "asignado": "Miriam Guillem", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3069139870/Image (24).jpg"}, {"activo": "Celular Samsung Galaxy A03 Core", "codigo": "CEL-SAM-GA03-071", "estado": "Operativo", "tipo": "Celular", "area": "Administracion", "sede": "Olivos / San Isidro", "serie": "R7AT134EYGV", "asignado": "Miriam Guillem", "os": "Android 13", "procesador": "", "ram": "2 GB", "ram_gb": 2.0, "almacenamiento": "27GB", "storage_gb": 27.0, "mac_wifi": "", "mac_ethernet": "", "cargador": "Funcional", "vatios": "25 W", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3070695686/Image (28).jpg"}, {"activo": "Microsoft Surface Studio", "codigo": "MS-SF-ESTD-072", "estado": "Operativo", "tipo": "Surface", "area": "Operaciones", "sede": "Olivos / San Isidro", "serie": "A790370200HA141A", "asignado": "Neill Castillo", "os": "Windows 11 Home Single", "procesador": "i5-11300H 3.10GHz", "ram": "16GB DDR4", "ram_gb": 16.0, "almacenamiento": "512 GB SSD", "storage_gb": 512.0, "mac_wifi": "6C-A1-00-03-F1-36", "mac_ethernet": "5C-53-10-61-B2-98", "cargador": "Funcional", "vatios": "65 W", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [{"nombre": "Cargador de Laptop", "modelo": "Microsoft", "serie": "0C130K0178403", "vatios": "65W", "estado": "Operativo", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3069204128/Image (27).jpg"}], "recomendacion": "Equipo apto para uso", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3069203780/Image (26).jpg"}, {"activo": "Lenovo ThinkBook 16 G8 IRL", "codigo": "LNV-TB-16G8-073", "estado": "Operativo", "tipo": "Laptop", "area": "Sala de Reuniones", "sede": "Olivos / San Isidro", "serie": "PW0GB6TX", "asignado": "Juan Miranda", "os": "Windows 11 Pro", "procesador": "INTEL CORE 7 240H", "ram": "16GB DDR4", "ram_gb": 16.0, "almacenamiento": "1 TB GB SSD", "storage_gb": 1.0, "mac_wifi": "24-B2-B9-1B-B8-25", "mac_ethernet": "84-BA-59-9A-77-BF", "cargador": "Funcional", "vatios": "65 W", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [{"nombre": "Cargador de Laptop", "modelo": "ADLX65YCC3E", "serie": "8SGX21J75548C1TJ51B0HK1", "vatios": "65W", "estado": "Operativo", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3068984629/imagen 3.png"}], "recomendacion": "Ampliar SSD a 512GB/1TB", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3068983287/imagen 1.png"}, {"activo": "Mouse Microsoft Mobile 1850", "codigo": "MOU-MN-1850-074", "estado": "Operativo", "tipo": "Mouse", "area": "Sala de Reuniones", "sede": "Olivos / San Isidro", "serie": "X892375-002", "asignado": "Juan Miranda", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3068983490/imagen 2.png"}, {"activo": "Audifono Kingston - HYPERX", "codigo": "AUD-KING-HYPX-075", "estado": "Operativo", "tipo": "Audifonos", "area": "Sala de Reuniones", "sede": "Olivos / San Isidro", "serie": "3500506001A00LF", "asignado": "Juan Miranda", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3068983807/imagen 4.png"}, {"activo": "Celular Samsung Galaxy A03 Core", "codigo": "CEL-SAM-GA03-081", "estado": "Operativo", "tipo": "Celular", "area": "Cobranza", "sede": "Olivos / San Isidro", "serie": "R7AT133YZ3H", "asignado": "Danitza Zarsoza", "os": "Android 13", "procesador": "", "ram": "2 GB", "ram_gb": 2.0, "almacenamiento": "27GB", "storage_gb": 27.0, "mac_wifi": "", "mac_ethernet": "", "cargador": "Funcional", "vatios": "25 W", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [{"nombre": "Cargador de Celular", "modelo": "Samsung", "serie": "C2017030261", "vatios": "25W", "estado": "Operativo", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3069050728/Image (14).jpg"}], "recomendacion": "", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3069052315/Image (12).jpg"}, {"activo": "Audifono Hyperx HX-HSCSC2-BK/WW", "codigo": "AUD-HPX-CS-053", "estado": "Operativo", "tipo": "Audifonos", "area": "Operaciones", "sede": "Olivos / San Isidro", "serie": "3500506-001.A00LF", "asignado": "Alessandra Florentini", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Mouse", "codigo": "MOU-NN-XX-030", "estado": "Operativo", "tipo": "Mouse", "area": "Transformacion Digital", "sede": "Olivos / San Isidro", "serie": "S/S", "asignado": "Renzo Anicama", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": "https://generafactoring-team.monday.com/protected_static/7907925/resources/3062267600/media_2026-06-23_5-14-34 p. m._0_184E5670.jpg"}, {"activo": "MackBook Pro M5 14\"", "codigo": "MBOK-PRO-M514-086", "estado": "Operativo", "tipo": "Mouse", "area": "Gerencia", "sede": "Olivos / San Isidro", "serie": "", "asignado": "Alejandro Niquen", "os": "", "procesador": "M5", "ram": "16GB", "ram_gb": 16.0, "almacenamiento": "512GB", "storage_gb": 512.0, "mac_wifi": "", "mac_ethernet": "", "cargador": "Funcional", "vatios": "45 W", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [{"nombre": null, "modelo": null, "serie": null, "vatios": null, "estado": null, "imagen": null}], "recomendacion": "", "imagen": ""}, {"activo": "Microsoft Surface Pro 7", "codigo": "MS-SF-PRO7-001", "estado": "Operativo", "tipo": "Surface", "area": "Almacen", "sede": "Los Olivos", "serie": "001846212953", "asignado": "TIC", "os": "Windows 11 Home Single", "procesador": "i5-1035G4 1.10 GHz", "ram": "8GB DDR4", "ram_gb": 8.0, "almacenamiento": "125 GB SSD", "storage_gb": 125.0, "mac_wifi": "", "mac_ethernet": "", "cargador": "Funcional", "vatios": "65 W", "obs": "La memoria ram de 8gb  y almacenamiento es insuficiente", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [{"nombre": "Cargador de Laptop", "modelo": "Microsoft", "serie": "OD130UOE711B1B", "vatios": "65W", "estado": "Operativo", "imagen": null}], "recomendacion": "Repotenciar RAM a 16/24GB; Ampliar SSD a 512GB/1TB", "imagen": ""}, {"activo": "ThinkPad L13 YOGA", "codigo": "TKP-L13-YOG-005", "estado": "Operativo", "tipo": "Laptop Tactil", "area": "Almacen", "sede": "Los Olivos", "serie": "R9104GM3", "asignado": "TIC", "os": "Windows 11 Home Single", "procesador": "i5-10210U 2.10 GHz", "ram": "8GB DDR4", "ram_gb": 8.0, "almacenamiento": "256 GB SSD", "storage_gb": 256.0, "mac_wifi": "", "mac_ethernet": "", "cargador": "No tiene", "vatios": "-", "obs": "El equipo tiene una rajadura cerca al trackpad y los bordes de la pantalla estan desgastadas y no cuenta con cargador", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "Repotenciar RAM a 16/24GB; Ampliar SSD a 512GB/1TB", "imagen": ""}, {"activo": "Mouse Logitech M170", "codigo": "MOU-LOG-M170-008", "estado": "Operativo", "tipo": "Mouse", "area": "Almacen", "sede": "Los Olivos", "serie": "2345AP0D31UB", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Mouse Logitech M170", "codigo": "MOU-LOG-M170-009", "estado": "Operativo", "tipo": "Mouse", "area": "Almacen", "sede": "Los Olivos", "serie": "2415AP0NYW28", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Mouse Logitech M240", "codigo": "MOU-LOG-M240-010", "estado": "Operativo", "tipo": "Mouse", "area": "Almacen", "sede": "Los Olivos", "serie": "2338AP07CBV8", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "No tiene usb inalambrico, pero si funciona con bluetooth", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Mouse Microsoft Mobile 1850", "codigo": "MOU-MS-M185-011", "estado": "Operativo", "tipo": "Mouse", "area": "Almacen", "sede": "Los Olivos", "serie": "XB92375-002", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Audifono HYPERX CLOUD STINGER", "codigo": "AUD-HPX-CS-014", "estado": "Operativo", "tipo": "Audifonos", "area": "Almacen", "sede": "Los Olivos", "serie": "HX-HSCSS-BK", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "Las almohadillas de las orejeras se encuentran en mal estado por el desgaste diario", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Audifono HYPERX CLOUD STINGER", "codigo": "AUD-HPX-CS-015", "estado": "Operativo", "tipo": "Audifonos", "area": "Almacen", "sede": "Los Olivos", "serie": "HX-HSCSC2-BK/WW", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "No cuenta con una almohadilla en la orejera izquierda", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Audifono Sony", "codigo": "AUD-SONNY-016", "estado": "Operativo", "tipo": "Audifonos", "area": "Almacen", "sede": "Los Olivos", "serie": "S/S", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Audifono Creative HS-230", "codigo": "AUD-CRE-HS23-017", "estado": "Operativo", "tipo": "Audifonos", "area": "Almacen", "sede": "Los Olivos", "serie": "Q2EF1110501001622B", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Hub Adapter Baseus", "codigo": "HUB-ADP-BAS-018", "estado": "Operativo", "tipo": "Hub Adaptador", "area": "Almacen", "sede": "Los Olivos", "serie": "UCN3275", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Camara Web + Microfono Teros", "codigo": "CAM-WEB-TER-019", "estado": "Operativo", "tipo": "Camara Web", "area": "Almacen", "sede": "Los Olivos", "serie": "S/S", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Camara Web + Microfono", "codigo": "CAM-WEB-SS-020", "estado": "Operativo", "tipo": "Camara Web", "area": "Almacen", "sede": "Los Olivos", "serie": "S/S", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Caja de cable de Red NEXXT CAT6", "codigo": "CRED-CAT6-NEX-023", "estado": "Operativo", "tipo": "Cable Red", "area": "Almacen", "sede": "Los Olivos", "serie": "S/S", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "Caja abierta", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Celular Samsung Galaxy A3 CORE", "codigo": "CEL-SAM-GA3-025", "estado": "Operativo", "tipo": "Celular", "area": "Almacen", "sede": "Los Olivos", "serie": "R7AT134CZ8P", "asignado": "TIC", "os": "Android 13", "procesador": "", "ram": "2 GB", "ram_gb": 2.0, "almacenamiento": "32 GB", "storage_gb": 32.0, "mac_wifi": "", "mac_ethernet": "", "cargador": "Funcional", "vatios": "20 W", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [{"nombre": "Cargador de celular", "modelo": "ADS-12DA-05", "serie": "E221556", "vatios": "25W", "estado": "Optimo", "imagen": null}], "recomendacion": "", "imagen": ""}, {"activo": "Router Repetidor Tp-Link Archer C64", "codigo": "RP-TPL-AC64-026", "estado": "Operativo", "tipo": "Router", "area": "Almacen", "sede": "Los Olivos", "serie": "22234A1002884", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "Funcional", "vatios": "12V", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Adaptador de Cable USB - HDMI", "codigo": "ADAP-USHD-VID-027", "estado": "Operativo", "tipo": "Adaptador", "area": "Almacen", "sede": "Los Olivos", "serie": "", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Router Repetidor Tp-Link Archer C50", "codigo": "RP-TPL-AC50-028", "estado": "Operativo", "tipo": "Router", "area": "Almacen", "sede": "Los Olivos", "serie": "22360J4002085", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "Funcional", "vatios": "12V", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Cable HDMI a Micro USB", "codigo": "CAB-MU-HDMI-032", "estado": "Operativo", "tipo": "Cable", "area": "Almacen", "sede": "Los Olivos", "serie": "E327374", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Cable USB tipo C blanco", "codigo": "CAB-TIPC-BLA-033", "estado": "Operativo", "tipo": "Cable", "area": "Almacen", "sede": "Los Olivos", "serie": "S/S", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Cable de impresora Tipo USB-B", "codigo": "CAB-IMP-TPB-034", "estado": "Operativo", "tipo": "Cable", "area": "Almacen", "sede": "Los Olivos", "serie": "S/S", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Cable tipo USB-A a USB-A", "codigo": "CAB-USB-BTB-035", "estado": "Operativo", "tipo": "Cable", "area": "Almacen", "sede": "Los Olivos", "serie": "S/S", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Cable USB-A a USB mini", "codigo": "CAB-USBA-USBM-036", "estado": "Operativo", "tipo": "Cable", "area": "Almacen", "sede": "Los Olivos", "serie": "S/S", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Huellero ZKTECO MB10-VL", "codigo": "HUE-ZKT-MB10-076", "estado": "Operativo", "tipo": "Huellero", "area": "Kitchen", "sede": "Los Olivos", "serie": "UDP3243600629", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Huellero ZKTECO MB10-VL (copy)", "codigo": "HUE-ZKT-MB10-077", "estado": "Operativo", "tipo": "Huellero", "area": "Area de Trabajo", "sede": "San Isidro", "serie": "UDP3243600466", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Impresora HP L8169", "codigo": "IMP-HP-L816-078", "estado": "Operativo", "tipo": "Impresora", "area": "Sala de Reuniones", "sede": "Los Olivos", "serie": "X9HG006229", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Router TPLINK Archer AX72", "codigo": "RP-TPL-AX72-079", "estado": "Operativo", "tipo": "Router", "area": "Kitchen", "sede": "Los Olivos", "serie": "2221329003039", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "14-EB-B6-DD-89-F4", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Router TPLINK Archer AX72", "codigo": "RP-TPL-AX72-080", "estado": "Operativo", "tipo": "Router", "area": "Kitchen", "sede": "Los Olivos", "serie": "2221329002651", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "14-EB-B6-DD-84-90", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Switch 24-Port Axis2400R", "codigo": "SW-24PT-AX24-081", "estado": "Operativo", "tipo": "Switch", "area": "Kitchen", "sede": "Los Olivos", "serie": "244U1201000453", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Asignados", "subitems": [{"nombre": null, "modelo": null, "serie": null, "vatios": null, "estado": null, "imagen": null}], "recomendacion": "", "imagen": ""}, {"activo": "HP Spectre x360 13-ap0013dx", "codigo": "HP-SPE-X36-006", "estado": "Reparación", "tipo": "Laptop Tactil", "area": "Almacen", "sede": "Los Olivos", "serie": "5CD84415ZN", "asignado": "TIC", "os": "Windows 10 Pro", "procesador": "i7-8565U", "ram": "16 GB DDR4", "ram_gb": 16.0, "almacenamiento": "256 GB SSD", "storage_gb": 256.0, "mac_wifi": "", "mac_ethernet": "", "cargador": "Funcional", "vatios": "65 W", "obs": "Los ventiladores estan fallando lo que causa que el equipo se caliente y apague automaticamente.", "fecha": "2026-06-26", "grupo": "Equipos para Reparación", "subitems": [], "recomendacion": "Evaluar reparación vs. renovación; Ampliar SSD a 512GB/1TB", "imagen": ""}, {"activo": "Lenovo YOGA 7 15ITL5", "codigo": "LNV-YOG7-ITL5-007", "estado": "Reparación", "tipo": "Laptop", "area": "Almacen", "sede": "Los Olivos", "serie": "PF20TWVD", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "No tiene", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos para Reparación", "subitems": [], "recomendacion": "Evaluar reparación vs. renovación", "imagen": ""}, {"activo": "HP Pavilion 15-eh0xxx", "codigo": "HP-PAV-15EH-004", "estado": "Reparación", "tipo": "Laptop", "area": "Almacen", "sede": "Los Olivos", "serie": "5CD204943X", "asignado": "TIC", "os": "Windows 11 Home Single", "procesador": "AMD RYZEN 5 4500U", "ram": "8GB DDR4", "ram_gb": 8.0, "almacenamiento": "256 GB SSD", "storage_gb": 256.0, "mac_wifi": "", "mac_ethernet": "", "cargador": "Funcional", "vatios": "65 W", "obs": "El trackpad se encuentra muy desgastado", "fecha": "2026-06-26", "grupo": "Equipos para Reparación", "subitems": [{"nombre": null, "modelo": null, "serie": null, "vatios": null, "estado": null, "imagen": null}], "recomendacion": "Evaluar reparación vs. renovación; Repotenciar RAM a 16/24GB; Ampliar SSD a 512GB/1TB", "imagen": ""}, {"activo": "Mouse Microsoft ARC TOUCH", "codigo": "MOU-MS-ARC-012", "estado": "Baja", "tipo": "Mouse", "area": "Almacen", "sede": "Los Olivos", "serie": "", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "Esta muy desgastado por el uso de años", "fecha": "2026-06-26", "grupo": "Equipos Dados de Baja", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Impresora HP Deskjet ink Advantage 2375", "codigo": "IMP-HP-A237-082", "estado": "Baja", "tipo": "Impresora", "area": "Almacen", "sede": "Los Olivos", "serie": "CN14N2220H", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Dados de Baja", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Microserver HP PROLIANT", "codigo": "SERV-HP-MICR-024", "estado": "Baja", "tipo": "Micro Servidor", "area": "Almacen", "sede": "Los Olivos", "serie": "5C7243P0DT", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Dados de Baja", "subitems": [{"nombre": null, "modelo": null, "serie": null, "vatios": null, "estado": null, "imagen": null}], "recomendacion": "", "imagen": ""}, {"activo": "Camara Video Conferencia Logitech PTZ PRO2", "codigo": "CVC-LOG-PRO2-013", "estado": "Inoperativo", "tipo": "Video Camara", "area": "Almacen", "sede": "Los Olivos", "serie": "1938LZ55CXV8", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "No cuenta con cargador para encendido", "fecha": "2026-06-26", "grupo": "Equipos Inoperativos", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Camara Vigilancia iSmart LIGHTCAM", "codigo": "CAMV-ISM-LIGH-083", "estado": "Inoperativo", "tipo": "Camara Vigilancia", "area": "Almacen", "sede": "Los Olivos", "serie": "106996130", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Inoperativos", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Microsoft Surface Pro 7 +", "codigo": "MS-SF-PRO7P-002", "estado": "Inoperativo", "tipo": "Surface", "area": "Almacen", "sede": "Los Olivos", "serie": "026955115153", "asignado": "TIC", "os": "Windows 11 Pro", "procesador": "i5-1135G7 2.40 GHz", "ram": "8GB DDR4", "ram_gb": 8.0, "almacenamiento": "125 GB SSD", "storage_gb": 125.0, "mac_wifi": "", "mac_ethernet": "", "cargador": "Malogrado", "vatios": "65 W", "obs": "El equipo se encuentra muy lento y necesita una formateada, su cargador esta fallando", "fecha": "2026-06-26", "grupo": "Equipos Inoperativos", "subitems": [], "recomendacion": "Evaluar reparación vs. renovación; Repotenciar RAM a 16/24GB; Ampliar SSD a 512GB/1TB", "imagen": ""}, {"activo": "Microsoft Surface Pro 7", "codigo": "MS-SF-PRO7-003", "estado": "Inoperativo", "tipo": "Laptop Tactil", "area": "Almacen", "sede": "Los Olivos", "serie": "062453184853", "asignado": "TIC", "os": "Windows 10 Pro", "procesador": "i5-7300U 2.60 Ghz", "ram": "8GB DDR4", "ram_gb": 8.0, "almacenamiento": "125 GB SSD", "storage_gb": 125.0, "mac_wifi": "", "mac_ethernet": "", "cargador": "Malogrado", "vatios": "65 W", "obs": "No permite el ingreso a la pantalla principal y su cargador esta fallando", "fecha": "2026-06-26", "grupo": "Equipos Inoperativos", "subitems": [], "recomendacion": "Evaluar reparación vs. renovación; Repotenciar RAM a 16/24GB; Ampliar SSD a 512GB/1TB", "imagen": ""}, {"activo": "Camara de Vigilancia iSmart LIGHTCAM", "codigo": "CAMV-ISM-LIGH-084", "estado": "Inoperativo", "tipo": "Camara Vigilancia", "area": "Almacen", "sede": "Los Olivos", "serie": "106996220", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "", "fecha": "2026-06-26", "grupo": "Equipos Inoperativos", "subitems": [], "recomendacion": "", "imagen": ""}, {"activo": "Monitor BENQ 15\"", "codigo": "MON-BENQ-15-085", "estado": "Inoperativo", "tipo": "Monitor", "area": "Almacen", "sede": "Los Olivos", "serie": "ETXAC025855L0", "asignado": "TIC", "os": "", "procesador": "", "ram": "", "ram_gb": null, "almacenamiento": "", "storage_gb": null, "mac_wifi": "", "mac_ethernet": "", "cargador": "-", "vatios": "-", "obs": "No tiene cable de poder y tampoco el cable de VGA", "fecha": "2026-06-26", "grupo": "Equipos Inoperativos", "subitems": [{"nombre": null, "modelo": null, "serie": null, "vatios": null, "estado": null, "imagen": null}], "recomendacion": "", "imagen": ""}];
+    const EMPLOYEES = [{"nombre": "Alejandro Niquen", "total": 1, "laptops": 0}, {"nombre": "Alessandra Florentini", "total": 5, "laptops": 1}, {"nombre": "Danitza Zarsoza", "total": 4, "laptops": 1}, {"nombre": "Diego Carnero", "total": 4, "laptops": 1}, {"nombre": "Francesca Espinoza", "total": 4, "laptops": 1}, {"nombre": "Herbert Vente", "total": 1, "laptops": 1}, {"nombre": "Jozelyn Segura", "total": 5, "laptops": 1}, {"nombre": "Juan Miranda", "total": 3, "laptops": 1}, {"nombre": "Karina Vilcapoma", "total": 2, "laptops": 1}, {"nombre": "Luis Salcedo", "total": 4, "laptops": 1}, {"nombre": "Maria Bonifaz", "total": 4, "laptops": 1}, {"nombre": "Miriam Guillem", "total": 4, "laptops": 1}, {"nombre": "Neill Castillo", "total": 1, "laptops": 1}, {"nombre": "Renzo Anicama", "total": 3, "laptops": 1}, {"nombre": "Ricardo Llave", "total": 3, "laptops": 1}, {"nombre": "Rosario Rodriguez", "total": 2, "laptops": 1}];
+    let selectedEmployee = null;
+
+    const laptopTypes = new Set(["Laptop", "Surface", "Laptop Tactil"]);
+
+    function normalize(s) {
+      return (s || "").toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    }
+
+    function statusClass(s) {
+      return (s || "").replace(/\s/g, "");
+    }
+
+    function specText(a) {
+      const parts = [];
+      if (a.procesador) parts.push(a.procesador);
+      if (a.ram) parts.push(a.ram);
+      if (a.almacenamiento) parts.push(a.almacenamiento);
+      if (a.os) parts.push(a.os);
+      if (a.vatios && a.vatios !== "-") parts.push(a.vatios);
+      return parts.length ? parts.join(" / ") : "—";
+    }
+
+    function renderEmployees() {
+      const q = normalize(document.getElementById("employeeSearch").value);
+      const list = document.getElementById("employeeList");
+      const filtered = EMPLOYEES.filter(e => normalize(e.nombre).includes(q));
+      document.getElementById("empCount").textContent = filtered.length;
+      list.innerHTML = filtered.map(e => `
+        <button class="emp ${selectedEmployee === e.nombre ? "active" : ""}" onclick="selectEmployee('${e.nombre.replace(/'/g, "\\'")}')">
+          <div>
+            <div class="emp-name">${e.nombre}</div>
+            <div class="emp-meta">${e.laptops} laptop/surface · ${e.total} activo(s)</div>
+          </div>
+          <span class="pill">${e.total}</span>
+        </button>
+      `).join("");
+    }
+
+    function selectEmployee(name) {
+      selectedEmployee = name;
+      renderEmployees();
+      renderDetail();
+    }
+
+    function showAll() {
+      selectedEmployee = null;
+      renderEmployees();
+      renderDetail();
+    }
+
+    function getVisibleAssets() {
+      let rows = [...ASSETS];
+      if (selectedEmployee) rows = rows.filter(a => a.asignado === selectedEmployee);
+      const type = document.getElementById("filterType").value;
+      const status = document.getElementById("filterStatus").value;
+      if (type !== "Todos") rows = rows.filter(a => a.tipo === type);
+      if (status !== "Todos") rows = rows.filter(a => a.estado === status);
+      return rows;
+    }
+
+    function initFilters() {
+      const types = ["Todos", ...Array.from(new Set(ASSETS.map(a => a.tipo || "Sin tipo"))).sort()];
+      const statuses = ["Todos", ...Array.from(new Set(ASSETS.map(a => a.estado || "Sin estado"))).sort()];
+      document.getElementById("filterType").innerHTML = types.map(t => `<option>${t}</option>`).join("");
+      document.getElementById("filterStatus").innerHTML = statuses.map(s => `<option>${s}</option>`).join("");
+    }
+
+    function renderDetail() {
+      const rows = getVisibleAssets();
+      document.getElementById("detailName").textContent = selectedEmployee ? selectedEmployee : "Resumen general";
+      document.getElementById("detailSub").textContent = selectedEmployee 
+        ? "Activos tecnológicos asignados al colaborador seleccionado."
+        : "Vista de todos los activos registrados en el inventario TIC.";
+
+      document.getElementById("mTotal").textContent = rows.length;
+      document.getElementById("mLaptops").textContent = rows.filter(a => laptopTypes.has(a.tipo)).length;
+      document.getElementById("mAccessories").textContent = rows.filter(a => !laptopTypes.has(a.tipo)).length;
+      document.getElementById("mIssues").textContent = rows.filter(a => ["Reparación","Inoperativo","Baja"].includes(a.estado)).length;
+
+      const tbody = document.getElementById("assetRows");
+      tbody.innerHTML = rows.map(a => `
+        <tr>
+          <td><b>${a.activo || "—"}</b><div class="muted small">${a.area || ""} · ${a.sede || ""}</div></td>
+          <td>${a.codigo || "—"}</td>
+          <td>${a.tipo || "—"}</td>
+          <td><span class="status ${statusClass(a.estado)}">${a.estado || "—"}</span></td>
+          <td>${a.asignado || "—"}</td>
+          <td>${specText(a)}</td>
+          <td>${a.serie || "—"}</td>
+          <td>${a.recomendacion || "—"}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderBarChart(elId, data) {
+      const el = document.getElementById(elId);
+      const entries = Object.entries(data).sort((a,b) => b[1]-a[1]);
+      const max = Math.max(...entries.map(x => x[1]), 1);
+      el.innerHTML = entries.map(([label, val]) => `
+        <div class="bar-row">
+          <div class="bar-top"><b>${label || "Sin dato"}</b><span>${val}</span></div>
+          <div class="bar"><div style="width:${Math.max(4, (val/max)*100)}%"></div></div>
+        </div>
+      `).join("");
+    }
+
+    function countBy(arr, key) {
+      return arr.reduce((acc, a) => {
+        const k = a[key] || "Sin dato";
+        acc[k] = (acc[k] || 0) + 1;
+        return acc;
+      }, {});
+    }
+
+    function topTypes() {
+      const c = countBy(ASSETS, "tipo");
+      return Object.fromEntries(Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,10));
+    }
+
+    initFilters();
+    renderEmployees();
+    renderDetail();
+    renderBarChart("statusChart", countBy(ASSETS, "estado"));
+    renderBarChart("typeChart", topTypes());
+  </script>
+</body>
+</html>
